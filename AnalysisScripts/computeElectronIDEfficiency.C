@@ -10,21 +10,22 @@
 #include <vector>
 #include <cmath>
 
-const int nWP = 4;
+const int nWP = 5;
 enum WpType {
   WP_VETO = 0,
   WP_LOOSE,
   WP_MEDIUM, 
-  WP_TIGHT};
+  WP_TIGHT,
+  WP_HEEP};
 const TString wpName[nWP] = 
-  {"Veto", "Loose", "Medium", "Tight"};
+  {"Veto", "Loose", "Medium", "Tight", "HEEP"};
 
 const TString treename = "ntupler/ElectronTree";
 const TString fname = "../ElectronNtupler/test/electron_ntuple_mini.root";
 
 bool verbose = false;
 bool smallEventCount = false;
-bool useWeights = true;
+bool useWeights = true; // Unused variable???
 
 const float ptmin = 20;
 const float ptmax = 200;
@@ -87,6 +88,8 @@ void computeElectronIDEfficiency(WpType wp, bool useDzAndConv = true)
     tree->SetBranchAddress("passMediumId", &passChosenId, &b_passChosenId);
   else if( wp == WP_TIGHT)
     tree->SetBranchAddress("passTightId", &passChosenId, &b_passChosenId);
+  else if( wp == WP_HEEP)
+    tree->SetBranchAddress("passHEEPId", &passChosenId, &b_passChosenId);
   else
     assert(0);
   tree->SetBranchAddress("isTrue", &isTrue, &b_isTrue);

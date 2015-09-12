@@ -8,11 +8,10 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # NOTE: the pick the right global tag!
-#    for PHYS14 scenario PU4bx50 : global tag is ???
-#    for PHYS14 scenario PU20bx25: global tag is PHYS14_25_V1
+#    for Spring15 50ns : global tag is MCRUN2_74_V9A
+#    for Spring15 25ns : global tag is MCRUN2_74_V9
 #  as a rule, find the global tag in the DAS under the Configs for given dataset
-#process.GlobalTag.globaltag = 'PHYS14_25_V1::All'
-process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 #
 # Define input data to read
@@ -63,7 +62,8 @@ else :
 switchOnVIDElectronIdProducer(process, dataFormat)
 
 # define which IDs we want to produce
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',
+                 'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
 
 #add them to the VID producer
 for idmod in my_id_modules:
@@ -73,32 +73,45 @@ for idmod in my_id_modules:
 # Configure an example module for user analysis with electrons
 #
 
-process.ntupler = cms.EDAnalyzer('ElectronNtuplerVIDwithMVADemo',
-                                 # The module automatically detects AOD vs miniAOD, so we configure both
-                                 #
-                                 # Common to all formats objects
-                                 #
-                                 # ... none ...
-                                 #
-                                 # Objects specific to AOD format
-                                 #
-                                 electrons    = cms.InputTag("gedGsfElectrons"),
-                                 genParticles = cms.InputTag("genParticles"),
-                                 #
-                                 # Objects specific to MiniAOD format
-                                 #
-                                 electronsMiniAOD    = cms.InputTag("slimmedElectrons"),
-                                 genParticlesMiniAOD = cms.InputTag("prunedGenParticles"),
-                                 #
-                                 # ID decisions (common to all formats)
-                                 eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90"),
-                                 eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80"),
-                                 #
-                                 # ValueMaps with MVA results
-                                 #
-                                 mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"),
-                                 mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Categories")
-                                )
+process.ntupler = cms.EDAnalyzer(
+    'ElectronNtuplerVIDDemo',
+    # The module automatically detects AOD vs miniAOD, so we configure both
+    #
+    # Common to all formats objects
+    #
+    beamSpot = cms.InputTag('offlineBeamSpot'),
+    #
+    # Objects specific to AOD format
+    #
+    electrons    = cms.InputTag("gedGsfElectrons"),
+    genParticles = cms.InputTag("genParticles"),
+    vertices     = cms.InputTag("offlinePrimaryVertices"),
+    conversions  = cms.InputTag('allConversions'),
+    #
+    # Objects specific to MiniAOD format
+    #
+    electronsMiniAOD    = cms.InputTag("slimmedElectrons"),
+    genParticlesMiniAOD = cms.InputTag("prunedGenParticles"),
+    verticesMiniAOD     = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    conversionsMiniAOD  = cms.InputTag('reducedEgamma:reducedConversions'),
+    #
+    # ID decisions (common to all formats)
+    #
+    eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
+    eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
+    eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
+    eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
+    eleHEEPIdMap = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"),
+    # An example of configuration for accessing the full cut flow info for
+    # one case is shown below.
+    # The map name for the full info is the same as the map name of the
+    # corresponding simple pass/fail map above, they are distinguished by
+    # the type of the content.
+    eleMediumIdFullInfoMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
+    # This is a fairly verbose mode if switched on, with full cut flow 
+    # diagnostics for each candidate. Use it in a low event count test job.
+    eleIdVerbose = cms.bool(False)
+    )
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string( outputFile )

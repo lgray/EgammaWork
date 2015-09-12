@@ -94,8 +94,8 @@ process.ntupler = cms.EDAnalyzer('ElectronNtuplerVIDwithMVADemo',
                                  #
                                  # ID decisions (common to all formats)
                                  #
-                                 eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
-                                 eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
+                                 eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
+                                 eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
                                  #
                                  # ValueMaps with MVA results
                                  #
